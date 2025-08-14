@@ -165,9 +165,9 @@ jobs:
     name: Check Matrix Outcome
     permissions:
       statuses: write
-    needs:
-      - get-containers
-      - vib-verify
+    # needs:
+    #   - get-containers
+    #   - vib-verify
     outputs:
       result: ${{ steps.get-status.outputs.result }}
     # if: ${{ always() && github.event.pull_request.user.login != 'bitnami-bot' }}
