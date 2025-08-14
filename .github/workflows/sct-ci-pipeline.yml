@@ -1,4 +1,7 @@
 name: '[CI/CD] SCT CI Pipeline'
+
+env:
+  REGISTRY: ghcr.io
 on:
   schedule: 
     - cron: '0 0 * * *'
@@ -6,7 +9,9 @@ on:
   pull_request:
     branches:
       - main
-permissions: {}
+permissions:
+  contents: read
+  packages: write
    
 jobs:
   buid-containers-we-care-about:
@@ -21,6 +26,13 @@ jobs:
         run: echo "Building container ${{ matrix.container }}"
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Find Dockerfiles
         id: find-dockerfiles
         run: |
@@ -93,9 +105,35 @@ jobs:
             
             # Re-tag with the proper version
             final_tag="bitnami-${{ matrix.container }}:$version"
-            echo "Tagging $temp_image as $final_tag"
+            registry_tag="${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}:$version"
+            echo "Tagging $temp_image as $final_tag and $registry_tag"
             docker tag "$temp_image" "$final_tag"
+            docker tag "$temp_image" "$registry_tag"
             docker rmi "$temp_image"
             
-            echo "Successfully created $final_tag"
+            echo "Successfully created $final_tag and $registry_tag"
+          done
+      
+      - name: Push Containers to Registry
+        run: |
+          cd "${{ github.workspace }}/bitnami/${{ matrix.container }}"
+          
+          dockerfiles="${{ steps.find-dockerfiles.outputs.dockerfiles }}"
+          
+          # Push each tagged container to the registry
+          for dockerfile in $dockerfiles; do
+            dockerfile_dir=$(dirname "$dockerfile")
+            temp_tag="temp-bitnami-${{ matrix.container }}-$(basename "$dockerfile_dir")-"
+            
+            # Find the registry tag for this dockerfile
+            registry_image=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}" | head -1)
+            
+            if [ -z "$registry_image" ]; then
+              echo "Warning: Could not find registry image for $dockerfile"
+              continue
+            fi
+            
+            echo "Pushing $registry_image to registry"
+            docker push "$registry_image"
+            echo "Successfully pushed $registry_image"
           done
