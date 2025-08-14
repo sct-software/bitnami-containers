@@ -24,6 +24,6 @@ jobs:
       - name: Build Container
         run: |
           cd "${{ github.workspace }}/${{ matrix.container }}"
-          dockerfile = $(find . -name Dockerfile -type f)
+          declare dockerfile = $(find . -name Dockerfile -type f)
           cd "$(dirname "$dockerfile")"
           docker build Dockerfile .
