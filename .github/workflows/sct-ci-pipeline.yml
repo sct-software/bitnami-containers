@@ -104,8 +104,13 @@ jobs:
             
             echo "Successfully created $final_tag and $registry_tag"
             
-            # Push to registry immediately after building
-            echo "Pushing $registry_tag to registry"
-            docker push "$registry_tag"
-            echo "Successfully pushed $registry_tag"
+            # Push to registry only if on main branch
+            if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+              echo "On main branch, pushing $registry_tag to registry"
+              docker push "$registry_tag"
+              echo "Successfully pushed $registry_tag"
+            else
+              echo "Not on main branch (current: ${{ github.ref }}), skipping push to registry"
+              echo "Image $registry_tag built but not pushed"
+            fi
           done
