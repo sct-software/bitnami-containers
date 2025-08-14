@@ -21,7 +21,8 @@ jobs:
         run: echo "Building container ${{ matrix.container }}"
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Build Container
+      - name: Find Dockerfiles
+        id: find-dockerfiles
         run: |
           cd "${{ github.workspace }}/bitnami/${{ matrix.container }}"
           
@@ -36,6 +37,17 @@ jobs:
           echo "Found Dockerfiles:"
           echo "$dockerfiles"
           
+          # Save dockerfiles list to output for next step
+          echo "dockerfiles<<EOF" >> $GITHUB_OUTPUT
+          echo "$dockerfiles" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Build Containers
+        run: |
+          cd "${{ github.workspace }}/bitnami/${{ matrix.container }}"
+          
+          dockerfiles="${{ steps.find-dockerfiles.outputs.dockerfiles }}"
+          
           # Build each Dockerfile found
           for dockerfile in $dockerfiles; do
             dockerfile_dir=$(dirname "$dockerfile")
@@ -43,22 +55,47 @@ jobs:
             
             cd "${{ github.workspace }}/bitnami/${{ matrix.container }}/$dockerfile_dir"
             
-            # Build the container with temporary tag first
-            temp_tag="temp-bitnami-${{ matrix.container }}-$(date +%s)"
+            # Build the container with temporary tag
+            temp_tag="temp-bitnami-${{ matrix.container }}-$(basename "$dockerfile_dir")-$(date +%s)"
+            echo "Building with temporary tag: $temp_tag"
             docker build -t "$temp_tag" .
+            echo "Build completed for $temp_tag"
+          done
+      
+      - name: Tag Containers with Versions
+        run: |
+          cd "${{ github.workspace }}/bitnami/${{ matrix.container }}"
+          
+          dockerfiles="${{ steps.find-dockerfiles.outputs.dockerfiles }}"
+          
+          # Tag each built container with proper version
+          for dockerfile in $dockerfiles; do
+            dockerfile_dir=$(dirname "$dockerfile")
+            temp_tag="temp-bitnami-${{ matrix.container }}-$(basename "$dockerfile_dir")-"
+            
+            # Find the temp tag for this dockerfile
+            temp_image=$(docker images --format "table {{.Repository}}:{{.Tag}}" | grep "$temp_tag" | head -1)
+            
+            if [ -z "$temp_image" ]; then
+              echo "Warning: Could not find temporary image for $dockerfile"
+              continue
+            fi
+            
+            echo "Processing image: $temp_image"
             
             # Extract version from the built image's labels
-            version=$(docker inspect "$temp_tag" --format='{{index .Config.Labels "org.opencontainers.image.version"}}')
+            version=$(docker inspect "$temp_image" --format='{{index .Config.Labels "org.opencontainers.image.version"}}')
             
             if [ -z "$version" ] || [ "$version" = "<no value>" ]; then
-              echo "Warning: No version label found, using 'latest'"
+              echo "Warning: No version label found in $temp_image, using 'latest'"
               version="latest"
             fi
             
             # Re-tag with the proper version
             final_tag="bitnami-${{ matrix.container }}:$version"
-            docker tag "$temp_tag" "$final_tag"
-            docker rmi "$temp_tag"
+            echo "Tagging $temp_image as $final_tag"
+            docker tag "$temp_image" "$final_tag"
+            docker rmi "$temp_image"
             
-            echo "Successfully built $final_tag"
+            echo "Successfully created $final_tag"
           done
