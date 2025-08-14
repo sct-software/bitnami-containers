@@ -15,7 +15,7 @@ permissions:
   packages: write
    
 jobs:
-  buid-containers-we-care-about:
+  build-containers-we-care-about:
     runs-on: ubuntu-latest
     name: SCT Build
     strategy:
