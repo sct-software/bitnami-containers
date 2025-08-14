@@ -11,7 +11,7 @@ permissions: {}
 jobs:
   buid-containers-we-care-about:
     runs-on: ubuntu-latest
-    name: Build containers relevant to SCT
+    name: SCT Build
     strategy:
       max-parallel: 3
       matrix:
