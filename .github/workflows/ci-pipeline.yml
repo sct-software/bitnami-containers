@@ -168,8 +168,8 @@ jobs:
     # needs:
     #   - get-containers
     #   - vib-verify
-    outputs:
-      result: ${{ steps.get-status.outputs.result }}
+    #outputs:
+    #  result: ${{ steps.get-status.outputs.result }}
     # if: ${{ always() && github.event.pull_request.user.login != 'bitnami-bot' }}
     steps:
       - id: get-status
