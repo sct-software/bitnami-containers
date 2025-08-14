@@ -15,8 +15,6 @@ concurrency:
   group: card-movement-${{ github.event.number }}
 jobs:
   call-pr-review-workflow:
-    # SCT modification to disable this job in our fork
-    if: false 
-    # if: ${{ github.repository_owner == 'bitnami' }}
+    if: ${{ github.repository_owner == 'bitnami' }}
     uses: bitnami/support/.github/workflows/pr-review-requested-sync.yml@main
     secrets: inherit
