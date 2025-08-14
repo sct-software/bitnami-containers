@@ -173,6 +173,8 @@ jobs:
     # if: ${{ always() && github.event.pull_request.user.login != 'bitnami-bot' }}
     steps:
       - id: get-status
+        # SCT modification to disable this job in our fork
+        if: false
         name: Check Status
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         with:
