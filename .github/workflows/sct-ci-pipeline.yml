@@ -22,8 +22,6 @@ jobs:
       matrix:
         container: ["os-shell", "postgresql", "postgres-exporter", "redis-cluster", "redis-exporter", "minio", "minio-client", "minio-object-browser"]
     steps:
-      - name: Announce Container
-        run: echo "Building container ${{ matrix.container }}"
       - name: Checkout
         uses: actions/checkout@v4
       
