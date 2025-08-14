@@ -8,8 +8,9 @@ on:
   workflow_dispatch:
     # Allow manual triggering
   pull_request:
-    branches:
-      - main
+    branches: ["main"]
+  push:
+    branches: ["main"]    
 permissions:
   contents: read
   packages: write
