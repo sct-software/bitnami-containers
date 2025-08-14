@@ -21,7 +21,7 @@ jobs:
         run: echo "Building container ${{ matrix.container }}"
       - name: Build Container
         run: |
-          cd ${{ matrix.container }}
+          cd "${{ github.workspace }}/${{ matrix.container }}"
           dockerfile = $(find . -name Dockerfile -type f)
           cd "$(dirname "$dockerfile")"
           docker build Dockerfile .
