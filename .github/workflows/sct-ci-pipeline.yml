@@ -1,4 +1,4 @@
-name: '[CI/CD] SCT CI Pipeline'
+name: 'SCT CI Pipeline'
 
 env:
   REGISTRY: ghcr.io
