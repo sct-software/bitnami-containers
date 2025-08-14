@@ -15,7 +15,7 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        container: ["bitnami/os-shell", "bitnami/postgresql", "bitnami/postgres-exporter", "bitnami/redis-cluster", "bitnami/redis-exporter", "bitnami/minio", "bitnami/minio-client", "bitnami/minio-object-browser"]
+        container: ["os-shell", "postgresql", "postgres-exporter", "redis-cluster", "redis-exporter", "minio", "minio-client", "minio-object-browser"]
     steps:
       - name: Announce Container
         run: echo "Building container ${{ matrix.container }}"
@@ -23,7 +23,42 @@ jobs:
         uses: actions/checkout@v4
       - name: Build Container
         run: |
-          cd "${{ github.workspace }}/${{ matrix.container }}"
-          declare dockerfile = $(find . -name Dockerfile -type f)
-          cd "$(dirname "$dockerfile")"
-          docker build Dockerfile .
+          cd "${{ github.workspace }}/bitnami/${{ matrix.container }}"
+          
+          # Find all Dockerfile paths recursively
+          dockerfiles=$(find . -name "Dockerfile" -type f)
+          
+          if [ -z "$dockerfiles" ]; then
+            echo "No Dockerfiles found for ${{ matrix.container }}"
+            exit 1
+          fi
+          
+          echo "Found Dockerfiles:"
+          echo "$dockerfiles"
+          
+          # Build each Dockerfile found
+          for dockerfile in $dockerfiles; do
+            dockerfile_dir=$(dirname "$dockerfile")
+            echo "Building Dockerfile: $dockerfile in directory: $dockerfile_dir"
+            
+            cd "${{ github.workspace }}/bitnami/${{ matrix.container }}/$dockerfile_dir"
+            
+            # Build the container with temporary tag first
+            temp_tag="temp-bitnami-${{ matrix.container }}-$(date +%s)"
+            docker build -t "$temp_tag" .
+            
+            # Extract version from the built image's labels
+            version=$(docker inspect "$temp_tag" --format='{{index .Config.Labels "org.opencontainers.image.version"}}')
+            
+            if [ -z "$version" ] || [ "$version" = "<no value>" ]; then
+              echo "Warning: No version label found, using 'latest'"
+              version="latest"
+            fi
+            
+            # Re-tag with the proper version
+            final_tag="bitnami-${{ matrix.container }}:$version"
+            docker tag "$temp_tag" "$final_tag"
+            docker rmi "$temp_tag"
+            
+            echo "Successfully built $final_tag"
+          done
