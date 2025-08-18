@@ -86,6 +86,12 @@ jobs:
               version="latest"
             fi
             
+            # Debug: Show what we extracted
+            echo "Found version: $version"
+            echo "Found OS flavour: $os_flavour"
+            echo "Found image revision: $image_revision"
+            echo "Found ref_name: $ref_name"
+            
             # Build the full tag in Bitnami format: version-os_flavour-rRevision
             full_tag="$version"
             
@@ -104,21 +110,21 @@ jobs:
             # Add revision with "r" prefix
             if [ -n "$image_revision" ]; then
               full_tag="${full_tag}-r${image_revision}"
+              echo "Added revision: r${image_revision}"
             else
               # Fallback to extracting revision from ref_name if available
               if [ -n "$ref_name" ]; then
                 revision=$(echo "$ref_name" | grep -o 'r[0-9]*$' || echo "")
                 if [ -n "$revision" ]; then
                   full_tag="${full_tag}-${revision}"
+                  echo "Added revision from ref_name: ${revision}"
                 fi
+              else
+                echo "Warning: No revision found - neither IMAGE_REVISION nor ref_name available"
               fi
             fi
             
-            echo "Found version: $version"
-            echo "Found OS flavour: $os_flavour"
-            echo "Found image revision: $image_revision"
-            echo "Found ref_name: $ref_name"
-            echo "Full tag: $full_tag"
+            echo "Final full tag: $full_tag"
             
             # Store build info for later steps
             if [ -n "$build_info" ]; then
