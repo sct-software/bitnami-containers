@@ -142,9 +142,10 @@ jobs:
           for build in "${BUILDS[@]}"; do
             IFS=':' read -ra BUILD_PARTS <<< "$build"
             dockerfile_dir="${BUILD_PARTS[0]}"
-            version="${BUILD_PARTS[1]}"
+            full_tag="${BUILD_PARTS[1]}"
+            base_version="${BUILD_PARTS[2]}"
             
-            registry_tag="${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}:$version"
+            registry_tag="${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}:$full_tag"
             echo "Checking if $registry_tag already exists..."
             
             if docker manifest inspect "$registry_tag" > /dev/null 2>&1; then
@@ -154,7 +155,7 @@ jobs:
               if [ -n "$images_to_build" ]; then
                 images_to_build="${images_to_build}|"
               fi
-              images_to_build="${images_to_build}${dockerfile_dir}:${version}"
+              images_to_build="${images_to_build}${dockerfile_dir}:${full_tag}:${base_version}"
             fi
           done
           
@@ -172,9 +173,10 @@ jobs:
           for build in "${BUILDS[@]}"; do
             IFS=':' read -ra BUILD_PARTS <<< "$build"
             dockerfile_dir="${BUILD_PARTS[0]}"
-            version="${BUILD_PARTS[1]}"
+            full_tag="${BUILD_PARTS[1]}"
+            base_version="${BUILD_PARTS[2]}"
             
-            echo "Building image for $dockerfile_dir with version $version"
+            echo "Building image for $dockerfile_dir with full tag $full_tag"
             cd "${{ github.workspace }}/bitnami/${{ matrix.container }}/$dockerfile_dir"
             
             # Build the container with temporary tag
@@ -183,16 +185,25 @@ jobs:
             docker build -t "$temp_tag" .
             echo "Build completed for $temp_tag"
             
-            # Tag with proper version and registry tags
-            final_tag="bitnami-${{ matrix.container }}:$version"
-            registry_tag="${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}:$version"
+            # Tag with both full tag and base version, plus registry tags
+            final_tag_full="bitnami-${{ matrix.container }}:$full_tag"
+            final_tag_base="bitnami-${{ matrix.container }}:$base_version"
+            registry_tag_full="${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}:$full_tag"
+            registry_tag_base="${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}:$base_version"
             
-            echo "Tagging $temp_tag as $final_tag and $registry_tag"
-            docker tag "$temp_tag" "$final_tag"
-            docker tag "$temp_tag" "$registry_tag"
+            echo "Tagging $temp_tag with multiple tags:"
+            echo "  - $final_tag_full"
+            echo "  - $final_tag_base"
+            echo "  - $registry_tag_full"
+            echo "  - $registry_tag_base"
+            
+            docker tag "$temp_tag" "$final_tag_full"
+            docker tag "$temp_tag" "$final_tag_base"
+            docker tag "$temp_tag" "$registry_tag_full"
+            docker tag "$temp_tag" "$registry_tag_base"
             docker rmi "$temp_tag"
             
-            echo "Successfully created $final_tag and $registry_tag"
+            echo "Successfully created all tags for $dockerfile_dir"
           done
 
       - name: Push Images to Registry
@@ -206,12 +217,19 @@ jobs:
           for build in "${BUILDS[@]}"; do
             IFS=':' read -ra BUILD_PARTS <<< "$build"
             dockerfile_dir="${BUILD_PARTS[0]}"
-            version="${BUILD_PARTS[1]}"
+            full_tag="${BUILD_PARTS[1]}"
+            base_version="${BUILD_PARTS[2]}"
             
-            registry_tag="${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}:$version"
-            echo "Pushing $registry_tag to registry"
-            docker push "$registry_tag"
-            echo "Successfully pushed $registry_tag"
+            registry_tag_full="${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}:$full_tag"
+            registry_tag_base="${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}:$base_version"
+            
+            echo "Pushing $registry_tag_full to registry"
+            docker push "$registry_tag_full"
+            echo "Successfully pushed $registry_tag_full"
+            
+            echo "Pushing $registry_tag_base to registry"
+            docker push "$registry_tag_base"
+            echo "Successfully pushed $registry_tag_base"
           done
 
       - name: Skip Push (Not Main Branch)
