@@ -78,9 +78,6 @@ jobs:
             # Extract image revision from IMAGE_REVISION line (can be ENV or standalone)
             image_revision=$(grep 'IMAGE_REVISION=' Dockerfile | sed 's/.*IMAGE_REVISION="\([^"]*\)".*/\1/' | head -1)
             
-            # Fallback to ref.name if environment variables not available
-            ref_name=$(grep 'org.opencontainers.image.ref.name=' Dockerfile | sed 's/.*org.opencontainers.image.ref.name="\([^"]*\)".*/\1/' | head -1)
-            
             if [ -z "$version" ]; then
               echo "Warning: Could not extract version from Dockerfile, using 'latest'"
               version="latest"
@@ -90,7 +87,6 @@ jobs:
             echo "Found version: $version"
             echo "Found OS flavour: $os_flavour"
             echo "Found image revision: $image_revision"
-            echo "Found ref_name: $ref_name"
             
             # Build the full tag in Bitnami format: version-os_flavour-rRevision
             full_tag="$version"
@@ -112,16 +108,7 @@ jobs:
               full_tag="${full_tag}-r${image_revision}"
               echo "Added revision: r${image_revision}"
             else
-              # Fallback to extracting revision from ref_name if available
-              if [ -n "$ref_name" ]; then
-                revision=$(echo "$ref_name" | grep -o 'r[0-9]*$' || echo "")
-                if [ -n "$revision" ]; then
-                  full_tag="${full_tag}-${revision}"
-                  echo "Added revision from ref_name: ${revision}"
-                fi
-              else
-                echo "Warning: No revision found - neither IMAGE_REVISION nor ref_name available"
-              fi
+              echo "Warning: No IMAGE_REVISION found in Dockerfile"
             fi
             
             echo "Final full tag: $full_tag"
