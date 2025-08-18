@@ -75,8 +75,8 @@ jobs:
             # Extract OS flavour from ENV OS_FLAVOUR line (preferred method)
             os_flavour=$(grep '^ENV.*OS_FLAVOUR=' Dockerfile | sed 's/.*OS_FLAVOUR="\([^"]*\)".*/\1/' | head -1)
             
-            # Extract image revision from ENV IMAGE_REVISION line (preferred method)
-            image_revision=$(grep '^ENV.*IMAGE_REVISION=' Dockerfile | sed 's/.*IMAGE_REVISION="\([^"]*\)".*/\1/' | head -1)
+            # Extract image revision from IMAGE_REVISION line (can be ENV or standalone)
+            image_revision=$(grep 'IMAGE_REVISION=' Dockerfile | sed 's/.*IMAGE_REVISION="\([^"]*\)".*/\1/' | head -1)
             
             # Fallback to ref.name if environment variables not available
             ref_name=$(grep 'org.opencontainers.image.ref.name=' Dockerfile | sed 's/.*org.opencontainers.image.ref.name="\([^"]*\)".*/\1/' | head -1)
