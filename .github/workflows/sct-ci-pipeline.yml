@@ -238,28 +238,14 @@ jobs:
           echo "Not on main branch (current: ${{ github.ref }}), skipping push to registry"
           echo "Images built but not pushed:"
           
-          # Get the original build info with full tags
-          build_info="${{ steps.process-dockerfiles.outputs.build-info }}"
           images_to_build="${{ steps.check-images.outputs.images-to-build }}"
           
-          # Create associative mapping of dockerfile_dir to full_tag
-          IFS='|' read -ra ALL_BUILDS <<< "$build_info"
-          declare -A dir_to_full_tag
-          for build in "${ALL_BUILDS[@]}"; do
-            IFS=':' read -ra BUILD_PARTS <<< "$build"
-            dockerfile_dir="${BUILD_PARTS[0]}"
-            full_tag="${BUILD_PARTS[1]}"
-            dir_to_full_tag["$dockerfile_dir"]="$full_tag"
-          done
-          
-          # Display images with both full tag and base version
           IFS='|' read -ra BUILDS <<< "$images_to_build"
           for build in "${BUILDS[@]}"; do
             IFS=':' read -ra BUILD_PARTS <<< "$build"
             dockerfile_dir="${BUILD_PARTS[0]}"
-            base_version="${BUILD_PARTS[1]}"
-            
-            full_tag="${dir_to_full_tag[$dockerfile_dir]}"
+            full_tag="${BUILD_PARTS[1]}"
+            base_version="${BUILD_PARTS[2]}"
             
             registry_tag_full="${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}:$full_tag"
             registry_tag_base="${{ env.REGISTRY }}/${{ github.repository_owner }}/bitnami-${{ matrix.container }}:$base_version"
