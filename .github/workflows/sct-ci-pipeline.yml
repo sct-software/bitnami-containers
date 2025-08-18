@@ -72,44 +72,52 @@ jobs:
             # Extract version from Dockerfile
             version=$(grep 'org.opencontainers.image.version=' Dockerfile | sed 's/.*org.opencontainers.image.version="\([^"]*\)".*/\1/')
             
-            # Extract full ref name which contains version-distro-revision
-            ref_name=$(grep 'org.opencontainers.image.ref.name=' Dockerfile | sed 's/.*org.opencontainers.image.ref.name="\([^"]*\)".*/\1/')
+            # Extract OS flavour from ENV OS_FLAVOUR line (preferred method)
+            os_flavour=$(grep '^ENV.*OS_FLAVOUR=' Dockerfile | sed 's/.*OS_FLAVOUR="\([^"]*\)".*/\1/' | head -1)
             
-            # Extract distribution from directory path (e.g., debian-12)
-            # Look for pattern like "debian-12" or "photon-5" in the path
-            distro=$(echo "$dockerfile_dir" | grep -o '[a-z]*-[0-9]*' | head -1 || echo "")
+            # Extract image revision from ENV IMAGE_REVISION line (preferred method)
+            image_revision=$(grep '^ENV.*IMAGE_REVISION=' Dockerfile | sed 's/.*IMAGE_REVISION="\([^"]*\)".*/\1/' | head -1)
             
-            # Extract revision from ref.name (everything after the last hyphen if it's r followed by number)
-            revision=""
-            if [ -n "$ref_name" ]; then
-              # Extract revision (r0, r1, etc.) from the end of ref_name
-              revision=$(echo "$ref_name" | grep -o 'r[0-9]*$' || echo "")
-            fi
+            # Fallback to ref.name if environment variables not available
+            ref_name=$(grep 'org.opencontainers.image.ref.name=' Dockerfile | sed 's/.*org.opencontainers.image.ref.name="\([^"]*\)".*/\1/' | head -1)
             
             if [ -z "$version" ]; then
               echo "Warning: Could not extract version from Dockerfile, using 'latest'"
               version="latest"
             fi
             
-            # Build the full tag in Bitnami format: version-distro-revision
-            # If we have ref_name and it matches expected pattern, use it directly
-            if [ -n "$ref_name" ] && echo "$ref_name" | grep -q "^${version}-.*-r[0-9]*$"; then
-              full_tag="$ref_name"
+            # Build the full tag in Bitnami format: version-os_flavour-rRevision
+            full_tag="$version"
+            
+            # Add OS flavour
+            if [ -n "$os_flavour" ]; then
+              full_tag="${full_tag}-${os_flavour}"
             else
-              # Fallback to constructing from parts
-              full_tag="$version"
+              # Fallback to extracting from directory path
+              distro=$(echo "$dockerfile_dir" | grep -o '[a-z]*-[0-9]*' | head -1 || echo "")
               if [ -n "$distro" ]; then
                 full_tag="${full_tag}-${distro}"
+                os_flavour="$distro"
               fi
-              if [ -n "$revision" ]; then
-                full_tag="${full_tag}-${revision}"
+            fi
+            
+            # Add revision with "r" prefix
+            if [ -n "$image_revision" ]; then
+              full_tag="${full_tag}-r${image_revision}"
+            else
+              # Fallback to extracting revision from ref_name if available
+              if [ -n "$ref_name" ]; then
+                revision=$(echo "$ref_name" | grep -o 'r[0-9]*$' || echo "")
+                if [ -n "$revision" ]; then
+                  full_tag="${full_tag}-${revision}"
+                fi
               fi
             fi
             
             echo "Found version: $version"
+            echo "Found OS flavour: $os_flavour"
+            echo "Found image revision: $image_revision"
             echo "Found ref_name: $ref_name"
-            echo "Found distro: $distro"
-            echo "Found revision: $revision"
             echo "Full tag: $full_tag"
             
             # Store build info for later steps
