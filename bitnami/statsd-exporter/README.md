@@ -1,7 +1,5 @@
 # Bitnami Secure Image for StatsD exporter
 
-## What is StatsD exporter?
-
 > StatsD exporter receives StatsD-style metrics and exports them as Prometheus metrics.
 
 [Overview of StatsD exporter](https://github.com/prometheus/statsd_exporter)
@@ -61,6 +59,8 @@ docker build -t bitnami/APP:latest .
 ```
 
 ## Configuration
+
+The following section describes how to run commands
 
 ### Running commands
 

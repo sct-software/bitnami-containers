@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Cypress
 
-## What is Cypress?
-
 > Cypress is a next-gen front-end testing tool built on Node.js for modern web. Features an improved UI, multiple browser support and high debuggability and real-time reloads.
 
 [Overview of Cypress](https://www.cypress.io/)
@@ -61,6 +59,8 @@ docker build -t bitnami/APP:latest .
 ```
 
 ## Configuration
+
+The following section describes how to run commands
 
 ### Running your Cypress app
 

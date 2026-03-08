@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Flux Kustomize Controller
 
-## What is Flux Kustomize Controller?
-
 > Kustomize Controller is a component of Flux. Flux is a tool for keeping Kubernetes clusters in sync with sources of configuration.
 
 [Overview of Flux Kustomize Controller](https://github.com/fluxcd/kustomize-controller)
@@ -57,6 +55,8 @@ docker build -t bitnami/APP:latest .
 ```
 
 ## Configuration
+
+The following section describes how to run commands
 
 ### Running commands
 

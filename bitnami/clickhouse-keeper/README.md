@@ -1,7 +1,5 @@
 # Bitnami Secure Image for ClickHouse Keeper
 
-## What is ClickHouse Keeper?
-
 > ClickHouse Keeper is an alternative for ZooKeeper that solves well-known drawbacks and makes many additional improvements.
 
 [Overview of ClickHouse Keeper](https://clickhouse.com/)
@@ -97,6 +95,8 @@ services:
 Check the [official ClickHouse Keeper configuration documentation](https://clickhouse.com/docs/guides/sre/keeper/clickhouse-keeper) for all the possible overrides and settings.
 
 ### Environment variables
+
+The following tables list the main variables you can set.
 
 #### Customizable environment variables
 

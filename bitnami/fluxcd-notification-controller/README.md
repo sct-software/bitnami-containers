@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Flux Notification Controller
 
-## What is Flux Notification Controller?
-
 > Notification Controller is a component of Flux. Flux is a tool for keeping Kubernetes clusters in sync with sources of configuration.
 
 [Overview of Flux Notification Controller](https://github.com/fluxcd/notification-controller)
@@ -58,6 +56,8 @@ docker build -t bitnami/APP:latest .
 ```
 
 ## Configuration
+
+The following section describes how to run commands
 
 ### Running commands
 

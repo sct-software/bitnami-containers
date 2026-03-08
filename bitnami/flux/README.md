@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Flux
 
-## What is Flux?
-
 > Flux is a tool for keeping Kubernetes clusters in sync with sources of configuration.
 
 [Overview of Flux](https://flux.io)
@@ -64,6 +62,8 @@ docker build -t bitnami/APP:latest .
 ```
 
 ## Configuration
+
+The following section describes how to run commands
 
 ### Running commands
 

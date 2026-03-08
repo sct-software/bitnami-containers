@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Matomo
 
-## What is Matomo?
-
 > Matomo, formerly known as Piwik, is a real time web analytics program. It provides detailed reports on website visitors.
 
 [Overview of Matomo](https://matomo.org/)
@@ -76,11 +74,15 @@ The above examples define docker volumes namely `mariadb_data` and `matomo_data`
 
 To avoid inadvertent removal of these volumes you can [mount host directories as data volumes](https://docs.docker.com/engine/tutorials/dockervolumes/). Alternatively you can make use of volume plugins to host the volume data.
 
-> NOTE: As this is a non-root container, the mounted files and directories must have the proper permissions for the UID `1001`.
+> **NOTE** As this is a non-root container, the mounted files and directories must have the proper permissions for the UID `1001`.
 
 ## Configuration
 
+The following section describes the supported environment variables
+
 ### Environment variables
+
+The following tables list the main variables you can set.
 
 #### Customizable environment variables
 

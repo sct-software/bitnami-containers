@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Chainloop Control Plane migrations
 
-## What is Chainloop Control Plane migrations?
-
 > Atlas-based database migration controller for Chainloop.
 
 [Overview of Chainloop Control Plane migrations](https://chainloop.dev)
@@ -61,6 +59,8 @@ docker build -t bitnami/APP:latest .
 ```
 
 ## Configuration
+
+The following section describes how to run commands
 
 ### Running commands
 

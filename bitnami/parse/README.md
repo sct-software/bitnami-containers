@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Parse Server
 
-## What is Parse Server?
-
 > Parse is a platform that enables users to add a scalable and powerful backend to launch a full-featured app for iOS, Android, JavaScript, Windows, Unity, and more.
 
 [Overview of Parse Server](https://parseplatform.org/)
@@ -62,7 +60,7 @@ The above examples define docker volumes namely `mongodb_data` and `parse_data`.
 
 To avoid inadvertent removal of these volumes you can [mount host directories as data volumes](https://docs.docker.com/engine/tutorials/dockervolumes/). Alternatively you can make use of volume plugins to host the volume data.
 
-> NOTE: As this is a non-root container, the mounted files and directories must have the proper permissions for the UID `1001`.
+> **NOTE** As this is a non-root container, the mounted files and directories must have the proper permissions for the UID `1001`.
 
 ## Upgrade this application
 
@@ -101,7 +99,11 @@ Bitnami provides up-to-date versions of Mongodb and Parse, including security pa
 
 ## Configuration
 
+The following section describes the supported environment variables
+
 ### Environment variables
+
+The following tables list the main variables you can set.
 
 #### Customizable environment variables
 

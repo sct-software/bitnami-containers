@@ -1,7 +1,5 @@
 # Bitnami Secure Image for NGINX Open Source
 
-## What is NGINX Open Source?
-
 > NGINX Open Source is a web server that can be also used as a reverse proxy, load balancer, and HTTP cache. Recommended for high-demanding sites due to its ability to provide faster content.
 
 [Overview of NGINX Open Source](https://nginx.org)
@@ -94,6 +92,8 @@ services:
 To access your web server from your host machine you will need to access ports `8080` and `8443` exposed in the container.
 
 ## Configuration
+
+The following section describes how to configure the application
 
 ### Adding custom server blocks
 

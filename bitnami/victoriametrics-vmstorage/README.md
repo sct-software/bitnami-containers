@@ -1,7 +1,5 @@
 # Bitnami Secure Image for VictoriaMetrics Storage
 
-## What is VictoriaMetrics Storage?
-
 > VictoriaMetrics is a fast, cost-effective, and scalable monitoring solution and time series database, compatible with Prometheus and Graphite
 
 [Overview of VictoriaMetrics Storage](https://victoriametrics.com/)
@@ -34,6 +32,10 @@ If you are looking for our previous generation of images based on Debian Linux, 
 
 Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://techdocs.broadcom.com/us/en/vmware-tanzu/application-catalog/tanzu-application-catalog/services/tac-doc/apps-tutorials-understand-rolling-tags-containers-index.html).
 
+You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
+
+Subscribe to project updates by watching the [bitnami/containers GitHub repository](https://github.com/bitnami/containers).
+
 ## Get this image
 
 The recommended way to get the Bitnami VictoriaMetrics Storage Docker Image is to pull the prebuilt image from the [Docker Hub Registry](https://hub.docker.com/r/bitnami/victoriametrics-vmstorage).
@@ -62,9 +64,11 @@ Non-root container images add an extra layer of security and are generally recom
 
 ## Configuration
 
+The following section describes how to run commands inside the container.
+
 ### Running commands
 
-To run commands inside this container you can use `docker run`, for example to execute `vmstorage --help` you can follow the example below:
+To run commands inside this container you can use `docker run`. For example, to execute `vmstorage --help` you can run the following command:
 
 ```console
 docker run --rm --name victoriametrics-vmstorage bitnami/victoriametrics-vmstorage:latest --  --help

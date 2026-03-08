@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Flux Helm Controller
 
-## What is Flux Helm Controller?
-
 > Helm Controller is a component of Flux. Flux is a tool for keeping Kubernetes clusters in sync with sources of configuration.
 
 [Overview of Flux Helm Controller](https://github.com/fluxcd/helm-controller)
@@ -57,6 +55,8 @@ docker build -t bitnami/APP:latest .
 ```
 
 ## Configuration
+
+The following section describes how to run commands
 
 ### Running commands
 

@@ -1,7 +1,5 @@
 # Bitnami Secure Image for PostgREST
 
-## What is PostgREST?
-
 > PostgREST is a web server that allows communicating to PostgreSQL using API endpoints and operations.
 
 [Overview of PostgREST](https://postgrest.org/en/stable/)
@@ -58,7 +56,11 @@ docker build -t bitnami/APP:latest .
 
 ## Configuration
 
+The following section describes the supported environment variables
+
 ### Environment variables
+
+The following tables list the main variables you can set.
 
 #### Customizable environment variables
 

@@ -8,13 +8,13 @@ ARG JAVA_EXTRA_SECURITY_DIR="/bitnami/java/extra-security"
 ARG TARGETARCH
 
 LABEL org.opencontainers.image.base.name="docker.io/bitnami/minideb:bookworm" \
-      org.opencontainers.image.created="2026-02-19T02:27:56Z" \
+      org.opencontainers.image.created="2026-03-06T13:10:37Z" \
       org.opencontainers.image.description="Application packaged by Broadcom, Inc." \
-      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/ksql/README.md" \
-      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/ksql" \
-      org.opencontainers.image.title="ksql" \
+      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/solr/README.md" \
+      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/solr" \
+      org.opencontainers.image.title="solr" \
       org.opencontainers.image.vendor="Broadcom, Inc." \
-      org.opencontainers.image.version="8.1.1"
+      org.opencontainers.image.version="10.0.0"
 
 ENV HOME="/" \
     OS_ARCH="${TARGETARCH:-amd64}" \
@@ -24,13 +24,13 @@ ENV HOME="/" \
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN install_packages ca-certificates curl netcat-openbsd procps zlib1g
+RUN install_packages acl ca-certificates curl lsof netcat-openbsd procps zlib1g
 RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     DOWNLOADS_URL=${SECRET_DOWNLOADS_URL:-${DOWNLOADS_URL}} ; \
     mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
-      "jre-17.0.18-10-1-linux-${OS_ARCH}-debian-12" \
-      "ksql-8.1.1-0-linux-${OS_ARCH}-debian-12" \
+      "jre-21.0.10-10-0-linux-${OS_ARCH}-debian-12" \
+      "solr-10.0.0-0-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -45,17 +45,18 @@ RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 RUN chmod g+rwX /opt/bitnami
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
-RUN uninstall_packages curl
 
 COPY rootfs /
 RUN /opt/bitnami/scripts/java/postunpack.sh
-RUN /opt/bitnami/scripts/ksql/postunpack.sh
-ENV APP_VERSION="8.1.1" \
-    BITNAMI_APP_NAME="ksql" \
-    IMAGE_REVISION="4" \
+RUN /opt/bitnami/scripts/solr/postunpack.sh
+ENV APP_VERSION="10.0.0" \
+    BITNAMI_APP_NAME="solr" \
+    IMAGE_REVISION="0" \
     JAVA_HOME="/opt/bitnami/java" \
-    PATH="/opt/bitnami/java/bin:/opt/bitnami/ksql/bin:/opt/bitnami/common/bin:$PATH"
+    PATH="/opt/bitnami/java/bin:/opt/bitnami/solr/bin:/opt/bitnami/solr/prometheus-exporter/bin:/opt/bitnami/solr/contrib/prometheus-exporter/bin:$PATH"
+
+EXPOSE 8983
 
 USER 1001
-ENTRYPOINT [ "/opt/bitnami/scripts/ksql/entrypoint.sh" ]
-CMD [ "/opt/bitnami/scripts/ksql/run.sh" ]
+ENTRYPOINT [ "/opt/bitnami/scripts/solr/entrypoint.sh" ]
+CMD [ "/opt/bitnami/scripts/solr/run.sh" ]

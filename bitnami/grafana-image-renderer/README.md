@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Grafana Image Renderer
 
-## What is Grafana Image Renderer?
-
 > The Grafana Image Renderer is a plugin for Grafana that uses headless Chrome to render panels and dashboards as PNG images.
 
 [Overview of Grafana Image Renderer](https://github.com/grafana/grafana-image-renderer)
@@ -109,6 +107,8 @@ docker run -d --name grafana \
 You can customize Grafana Image Renderer settings by replacing the default configuration file with your custom configuration, or using environment variables.
 
 ### Environment variables
+
+The following tables list the main variables you can set.
 
 #### Customizable environment variables
 

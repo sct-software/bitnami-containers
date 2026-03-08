@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Chainloop Artifact CAS
 
-## What is Chainloop Artifact CAS?
-
 > The artifact proxy is a Content-Addressable Storage (CAS) Proxy that sits in front of different storage backends.
 
 [Overview of Chainloop Artifact CAS](https://chainloop.dev)
@@ -61,6 +59,8 @@ docker build -t bitnami/APP:latest .
 ```
 
 ## Configuration
+
+The following section describes how to run commands
 
 ### Running commands
 

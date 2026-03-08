@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Odoo
 
-## What is Odoo?
-
 > Odoo is an open source ERP and CRM platform, formerly known as OpenERP, that can connect a wide variety of business operations such as sales, supply chain, finance, and project management.
 
 [Overview of Odoo](https://www.odoo.com/)
@@ -82,11 +80,15 @@ The above examples define the Docker volumes named `postgresql_data` and `odoo_d
 
 To avoid inadvertent removal of volumes, you can [mount host directories as data volumes](https://docs.docker.com/engine/tutorials/dockervolumes/). Alternatively you can make use of volume plugins to host the volume data.
 
-> NOTE: As this is a non-root container, the mounted files and directories must have the proper permissions for the UID `1001`.
+> **NOTE** As this is a non-root container, the mounted files and directories must have the proper permissions for the UID `1001`.
 
 ## Configuration
 
+The following section describes the supported environment variables
+
 ### Environment variables
+
+The following tables list the main variables you can set.
 
 #### Customizable environment variables
 

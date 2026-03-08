@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Kubectl
 
-## What is Kubectl?
-
 > Kubectl is the Kubernetes command line interface. It allows to manage Kubernetes cluster by providing a wide set of commands that allows to communicate with the Kubernetes API in a friendly way.
 
 [Overview of Kubectl](https://github.com/kubernetes/kubectl)
@@ -57,6 +55,8 @@ docker build -t bitnami/APP:latest .
 ```
 
 ## Configuration
+
+The following section describes how to run commands
 
 ### Running commands
 

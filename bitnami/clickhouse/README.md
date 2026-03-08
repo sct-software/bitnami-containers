@@ -1,13 +1,13 @@
 # Bitnami Secure Image for ClickHouse
 
-## What is ClickHouse?
-
 > ClickHouse is an open-source column-oriented OLAP database management system. Use it to boost your database performance while providing linear scalability and hardware efficiency.
 
 [Overview of ClickHouse](https://clickhouse.com/)
 Trademarks: This software listing is packaged by Bitnami. The respective trademarks mentioned in the offering are owned by the respective companies, and use of them does not imply any affiliation or endorsement.
 
 ## TL;DR
+
+Use this quick command to run the container.
 
 ```console
 docker run --name clickhouse bitnami/clickhouse:latest
@@ -30,7 +30,7 @@ Each image comes with valuable security metadata. You can view the metadata in [
 
 If you are looking for our previous generation of images based on Debian Linux, please see the [Bitnami Legacy registry](https://hub.docker.com/u/bitnamilegacy).
 
-## How to deploy ClickHouse in Kubernetes?
+## How to deploy ClickHouse in Kubernetes
 
 Deploying Bitnami applications as Helm Charts is the easiest way to get started with our applications on Kubernetes. Read more about the installation in the [Bitnami ClickHouse Chart GitHub repository](https://github.com/bitnami/charts/tree/master/bitnami/clickhouse).
 
@@ -78,7 +78,7 @@ Containers attached to the same network can communicate with each other using th
 
 ## Configuration
 
-ClickHouse can be configured via environment variables or using a configuration file (`config.xml`). If a configuration option is not specified in either the configuration file or in an environment variable, ClickHouse uses its internal default configuration.
+ClickHouse can be configured using environment variables or a configuration file (`config.xml`). If a configuration option is not specified in either the configuration file or in an environment variable, ClickHouse uses its internal default configuration.
 
 ### Configuration overrides
 
@@ -92,9 +92,11 @@ When the container is executed for the first time, it will execute the files wit
 
 In order to have your custom files inside the docker image you can mount them as a volume.
 
-> NOTE: If you use JSON format for clickhouse logs and remove the message field of the logs, the application will fail to start if there are init or start scripts in any of those 2 folders.
+> **NOTE** If you use JSON format for ClickHouse logs and remove the message field of the logs, the application will fail to start if there are init or start scripts in any of those 2 folders.
 
 ### Environment variables
+
+The following tables list the main variables you can set.
 
 #### Customizable environment variables
 

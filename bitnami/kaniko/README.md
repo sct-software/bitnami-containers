@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Kaniko
 
-## What is Kaniko?
-
 > Kaniko is a tool that builds and pushes container images directly in userspace. This allows securely building container images in environments like a standard Kubernetes cluster.
 
 [Overview of Kaniko](https://github.com/chainguard-dev/kaniko)
@@ -89,6 +87,8 @@ docker build -t bitnami/APP:latest .
 ```
 
 ## Configuration
+
+The following section describes how to run commands
 
 ### Running commands
 

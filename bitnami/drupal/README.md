@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Drupal
 
-## What is Drupal?
-
 > Drupal is one of the most versatile open source content management systems in the world. It is pre-configured with the Ctools and Views modules, Drush and Let's Encrypt auto-configuration support.
 
 [Overview of Drupal](https://drupal.org)
@@ -79,11 +77,15 @@ For persistence you should mount a directory at the `/bitnami/drupal` path. If t
 
 To avoid inadvertent removal of volumes, you can mount host directories as data volumes. Alternatively you can make use of volume plugins to host the volume data.
 
-> NOTE: As this is a non-root container, the mounted files and directories must have the proper permissions for the UID `1001`.
+> **NOTE** As this is a non-root container, the mounted files and directories must have the proper permissions for the UID `1001`.
 
 ## Configuration
 
+The following section describes the supported environment variables
+
 ### Environment variables
+
+The following tables list the main variables you can set.
 
 #### Customizable environment variables
 

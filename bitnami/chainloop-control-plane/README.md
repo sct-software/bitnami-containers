@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Chainloop
 
-## What is Chainloop?
-
 > Chainloop is an open-source Software Supply Chain control plane, a single source of truth for metadata and artifacts, plus a declarative attestation process.
 
 [Overview of Chainloop](https://chainloop.dev)
@@ -61,6 +59,8 @@ docker build -t bitnami/APP:latest .
 ```
 
 ## Configuration
+
+The following section describes how to run commands
 
 ### Running commands
 

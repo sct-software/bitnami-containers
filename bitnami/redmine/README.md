@@ -1,7 +1,5 @@
 # Bitnami Secure Image for Redmine
 
-## What is Redmine?
-
 > Redmine is an open source management application. It includes a tracking issue system, Gantt charts for a visual view of projects and deadlines, and supports SCM integration for version control.
 
 [Overview of Redmine](https://www.redmine.org/)
@@ -72,11 +70,15 @@ The above examples define the Docker volumes named `mariadb_data` and `redmine_d
 
 To avoid inadvertent removal of volumes, you can [mount host directories as data volumes](https://docs.docker.com/engine/tutorials/dockervolumes/). Alternatively you can make use of volume plugins to host the volume data.
 
-> NOTE: As this is a non-root container, the mounted files and directories must have the proper permissions for the UID `1001`.
+> **NOTE** As this is a non-root container, the mounted files and directories must have the proper permissions for the UID `1001`.
 
 ## Configuration
 
+The following section describes the supported environment variables
+
 ### Environment variables
+
+The following tables list the main variables you can set.
 
 #### Customizable environment variables
 
