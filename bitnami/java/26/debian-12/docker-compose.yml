@@ -4,7 +4,7 @@
 services:
   java:
     tty: true # Enables debugging capabilities when attached to this container.
-    image: docker.io/bitnami/java:25
+    image: docker.io/bitnami/java:26
     command: ["tail", "-f", "/dev/null"] # To keep the container running
     ports:
       - 8080:8080
