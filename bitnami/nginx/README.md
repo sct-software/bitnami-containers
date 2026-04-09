@@ -259,6 +259,16 @@ services:
   ...
 ```
 
+### Configuring worker processes
+
+By default, the image configures `worker_processes` as `auto`. You can override this behavior by setting the `NGINX_WORKER_PROCESSES` environment variable to a positive integer (for example, `1`).
+
+```console
+docker run --name nginx --rm \
+  -e NGINX_WORKER_PROCESSES=1 \
+  bitnami/nginx:latest
+```
+
 ### Solving redirection issues
 
 By default redirections issued by NGINX Open Source image will be relative. If you need to activate absolute redirections you can set `NGINX_ENABLE_ABSOLUTE_REDIRECT` to `yes`. You should pay attention to the port where the container is listening, because it won't appear in redirections unless you set also `NGINX_ENABLE_PORT_IN_REDIRECT` to `yes`.
@@ -457,6 +467,10 @@ To add a custom NGINX module, it is necessary to compile NGINX with that module 
 - [Create An EMP Development Environment With Bitnami Containers](https://docs.bitnami.com/containers/how-to/create-emp-environment-containers/)
 
 ## Notable Changes
+
+### Starting March, 2026
+
+- Added support for configuring the `worker_processes` directive using the `NGINX_WORKER_PROCESSES` environment variable (allowed values: `auto` or a positive integer).
 
 ### Starting February 10, 2025
 
