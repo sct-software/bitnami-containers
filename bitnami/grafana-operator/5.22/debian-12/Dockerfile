@@ -7,13 +7,13 @@ ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
 ARG TARGETARCH
 
 LABEL org.opencontainers.image.base.name="docker.io/bitnami/minideb:bookworm" \
-      org.opencontainers.image.created="2026-04-08T01:56:23Z" \
+      org.opencontainers.image.created="2026-04-13T11:10:17Z" \
       org.opencontainers.image.description="Application packaged by Broadcom, Inc." \
-      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/grafana-k6/README.md" \
-      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/grafana-k6" \
-      org.opencontainers.image.title="grafana-k6" \
+      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/grafana-operator/README.md" \
+      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/grafana-operator" \
+      org.opencontainers.image.title="grafana-operator" \
       org.opencontainers.image.vendor="Broadcom, Inc." \
-      org.opencontainers.image.version="1.7.1"
+      org.opencontainers.image.version="5.22.2"
 
 ENV HOME="/" \
     OS_ARCH="${TARGETARCH:-amd64}" \
@@ -28,8 +28,7 @@ RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     DOWNLOADS_URL=${SECRET_DOWNLOADS_URL:-${DOWNLOADS_URL}} ; \
     mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
-      "grafana-k6-1.7.1-1-linux-${OS_ARCH}-debian-12" \
-      "scuttle-1.1.14-2-linux-${OS_ARCH}-debian-12" \
+      "grafana-operator-5.22.2-0-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -42,14 +41,19 @@ RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     done
 RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
-RUN useradd -r -u 1001 -g root grafana-k6
+RUN chmod g+rwX /opt/bitnami
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
+RUN ln -sf /opt/bitnami/grafana-operator/bin/grafana-operator /usr/local/bin/grafana-operator
+RUN mkdir -p /opt/jsonnet && ln -sf /opt/bitnami/grafonnet-lib/grafonnet /opt/jsonnet/grafonnet
 RUN uninstall_packages curl
 
-ENV APP_VERSION="1.7.1" \
-    BITNAMI_APP_NAME="grafana-k6" \
-    IMAGE_REVISION="1" \
-    PATH="/opt/bitnami/grafana-k6/bin:/opt/bitnami/common/bin:$PATH"
+ENV APP_VERSION="5.22.2" \
+    BITNAMI_APP_NAME="grafana-operator" \
+    IMAGE_REVISION="7" \
+    PATH="/opt/bitnami/grafana-operator/bin:$PATH"
 
+EXPOSE 8080
+
+WORKDIR /opt/bitnami/grafana-operator
 USER 1001
-ENTRYPOINT [ "/opt/bitnami/grafana-k6/bin/k6" ]
+ENTRYPOINT [ "grafana-operator" ]
