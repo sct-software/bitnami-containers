@@ -7,13 +7,13 @@ ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
 ARG TARGETARCH
 
 LABEL org.opencontainers.image.base.name="docker.io/bitnami/minideb:bookworm" \
-      org.opencontainers.image.created="2026-04-08T02:38:46Z" \
+      org.opencontainers.image.created="2026-04-14T08:54:17Z" \
       org.opencontainers.image.description="Application packaged by Broadcom, Inc." \
-      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/grafana/README.md" \
-      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/grafana" \
-      org.opencontainers.image.title="grafana" \
+      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/grafana-loki/README.md" \
+      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/grafana-loki" \
+      org.opencontainers.image.title="grafana-loki" \
       org.opencontainers.image.vendor="Broadcom, Inc." \
-      org.opencontainers.image.version="12.4.2"
+      org.opencontainers.image.version="3.7.1"
 
 ENV HOME="/" \
     OS_ARCH="${TARGETARCH:-amd64}" \
@@ -23,14 +23,12 @@ ENV HOME="/" \
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN install_packages ca-certificates curl libaudit1 libcap-ng0 libfontconfig libgcc-s1 libicu72 liblzma5 libncurses6 libpam0g libssl3 libstdc++6 libtinfo6 libxml2 procps zlib1g
+RUN install_packages ca-certificates curl procps
 RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     DOWNLOADS_URL=${SECRET_DOWNLOADS_URL:-${DOWNLOADS_URL}} ; \
     mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
-      "mysql-client-12.2.2-0-linux-${OS_ARCH}-debian-12" \
-      "ini-file-1.4.9-9-linux-${OS_ARCH}-debian-12" \
-      "grafana-12.4.2-1-linux-${OS_ARCH}-debian-12" \
+      "grafana-loki-3.7.1-0-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -44,18 +42,17 @@ RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
 RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 RUN chmod g+rwX /opt/bitnami
+RUN mkdir -p /bitnami/grafana-loki/data /bitnami/grafana-loki/loki /bitnami/grafana-loki/wal && chmod -R g+rwX /bitnami/grafana-loki && ln -s  /bitnami/grafana-loki/loki /loki && ln -s /bitnami/grafana-loki/data /data && ln -s /bitnami/grafana-loki/wal /wal
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
+RUN uninstall_packages curl
 
-COPY rootfs /
-RUN /opt/bitnami/scripts/grafana/postunpack.sh
-ENV APP_VERSION="12.4.2" \
-    BITNAMI_APP_NAME="grafana" \
-    IMAGE_REVISION="2" \
-    PATH="/opt/bitnami/mysql/bin:/opt/bitnami/common/bin:/opt/bitnami/grafana/bin:$PATH"
+ENV APP_VERSION="3.7.1" \
+    BITNAMI_APP_NAME="grafana-loki" \
+    IMAGE_REVISION="5" \
+    PATH="/opt/bitnami/grafana-loki/bin:$PATH"
 
-EXPOSE 3000
+EXPOSE 3100
 
-WORKDIR /opt/bitnami/grafana
 USER 1001
-ENTRYPOINT [ "/opt/bitnami/scripts/grafana/entrypoint.sh" ]
-CMD [ "/opt/bitnami/scripts/grafana/run.sh" ]
+ENTRYPOINT [ "loki" ]
+CMD [ "-config.file=/bitnami/grafana-loki/conf/loki.yaml" ]
