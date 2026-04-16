@@ -7,13 +7,13 @@ ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
 ARG TARGETARCH
 
 LABEL org.opencontainers.image.base.name="docker.io/bitnami/minideb:bookworm" \
-      org.opencontainers.image.created="2026-04-08T18:17:13Z" \
+      org.opencontainers.image.created="2026-04-15T10:04:49Z" \
       org.opencontainers.image.description="Application packaged by Broadcom, Inc." \
-      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/attu/README.md" \
-      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/attu" \
-      org.opencontainers.image.title="attu" \
+      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/vault/README.md" \
+      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/vault" \
+      org.opencontainers.image.title="vault" \
       org.opencontainers.image.vendor="Broadcom, Inc." \
-      org.opencontainers.image.version="2.5.12"
+      org.opencontainers.image.version="2.0.0"
 
 ENV HOME="/" \
     OS_ARCH="${TARGETARCH:-amd64}" \
@@ -23,14 +23,12 @@ ENV HOME="/" \
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN install_packages ca-certificates curl libbz2-1.0 libffi8 libgcc-s1 liblzma5 libncursesw6 libreadline8 libsqlite3-0 libssl3 libstdc++6 libtinfo6 procps zlib1g
+RUN install_packages ca-certificates curl procps
 RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     DOWNLOADS_URL=${SECRET_DOWNLOADS_URL:-${DOWNLOADS_URL}} ; \
     mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
-      "python-3.14.4-0-linux-${OS_ARCH}-debian-12" \
-      "node-24.14.1-0-linux-${OS_ARCH}-debian-12" \
-      "attu-2.5.12-1-linux-${OS_ARCH}-debian-12" \
+      "vault-2.0.0-0-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -43,19 +41,13 @@ RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     done
 RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
-RUN useradd -r -u 1001 -g root attu
+RUN useradd -r -u 1001 -g root vault
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
-RUN ln -s /opt/bitnami/attu /app && mkdir -p /.cache/yarn && chmod g+rwX /.cache && mkdir -p /.yarn && chmod g+rwX /.yarn && mkdir /.npm && chmod g+rwX /.npm
-RUN uninstall_packages curl
 
-ENV APP_VERSION="2.5.12" \
-    BITNAMI_APP_NAME="attu" \
-    IMAGE_REVISION="51" \
-    PATH="/opt/bitnami/python/bin:/opt/bitnami/node/bin:$PATH"
+ENV APP_VERSION="2.0.0" \
+    BITNAMI_APP_NAME="vault" \
+    IMAGE_REVISION="0" \
+    PATH="/opt/bitnami/vault/bin:$PATH"
 
-EXPOSE 3000
-
-WORKDIR /opt/bitnami/attu
 USER 1001
-ENTRYPOINT [ "/opt/bitnami/node/bin/npm" ]
-CMD [ "run", "start:prod" ]
+ENTRYPOINT [ "/opt/bitnami/vault/bin/vault" ]

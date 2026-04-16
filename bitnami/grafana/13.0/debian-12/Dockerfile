@@ -7,13 +7,13 @@ ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
 ARG TARGETARCH
 
 LABEL org.opencontainers.image.base.name="docker.io/bitnami/minideb:bookworm" \
-      org.opencontainers.image.created="2026-04-08T20:24:05Z" \
+      org.opencontainers.image.created="2026-04-15T12:43:08Z" \
       org.opencontainers.image.description="Application packaged by Broadcom, Inc." \
-      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/nginx/README.md" \
-      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/nginx" \
-      org.opencontainers.image.title="nginx" \
+      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/grafana/README.md" \
+      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/grafana" \
+      org.opencontainers.image.title="grafana" \
       org.opencontainers.image.vendor="Broadcom, Inc." \
-      org.opencontainers.image.version="1.29.8"
+      org.opencontainers.image.version="13.0.0"
 
 ENV HOME="/" \
     OS_ARCH="${TARGETARCH:-amd64}" \
@@ -23,13 +23,14 @@ ENV HOME="/" \
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN install_packages ca-certificates curl gettext libcrypt1 libgcc-s1 libgeoip1 libicu72 liblzma5 libpcre3 libssl3 libstdc++6 libxml2 openssl procps zlib1g
+RUN install_packages ca-certificates curl libaudit1 libcap-ng0 libfontconfig libgcc-s1 libicu72 liblzma5 libncurses6 libpam0g libssl3 libstdc++6 libtinfo6 libxml2 procps zlib1g
 RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     DOWNLOADS_URL=${SECRET_DOWNLOADS_URL:-${DOWNLOADS_URL}} ; \
     mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
-      "render-template-1.0.9-164-linux-${OS_ARCH}-debian-12" \
-      "nginx-1.29.8-0-linux-${OS_ARCH}-debian-12" \
+      "mysql-client-12.2.2-0-linux-${OS_ARCH}-debian-12" \
+      "ini-file-1.4.9-9-linux-${OS_ARCH}-debian-12" \
+      "grafana-13.0.0-0-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -44,23 +45,17 @@ RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 RUN chmod g+rwX /opt/bitnami
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
-RUN ln -sf /dev/stdout /opt/bitnami/nginx/logs/access.log
-RUN ln -sf /dev/stderr /opt/bitnami/nginx/logs/error.log
-RUN uninstall_packages curl
 
 COPY rootfs /
-RUN /opt/bitnami/scripts/nginx/postunpack.sh
-ENV APP_VERSION="1.29.8" \
-    BITNAMI_APP_NAME="nginx" \
-    IMAGE_REVISION="1" \
-    NGINX_HTTPS_PORT_NUMBER="" \
-    NGINX_HTTP_PORT_NUMBER="" \
-    PATH="/opt/bitnami/common/bin:/opt/bitnami/nginx/sbin:$PATH"
+RUN /opt/bitnami/scripts/grafana/postunpack.sh
+ENV APP_VERSION="13.0.0" \
+    BITNAMI_APP_NAME="grafana" \
+    IMAGE_REVISION="0" \
+    PATH="/opt/bitnami/mysql/bin:/opt/bitnami/common/bin:/opt/bitnami/grafana/bin:$PATH"
 
-EXPOSE 8080 8443
+EXPOSE 3000
 
-STOPSIGNAL SIGQUIT
-WORKDIR /app
+WORKDIR /opt/bitnami/grafana
 USER 1001
-ENTRYPOINT [ "/opt/bitnami/scripts/nginx/entrypoint.sh" ]
-CMD [ "/opt/bitnami/scripts/nginx/run.sh" ]
+ENTRYPOINT [ "/opt/bitnami/scripts/grafana/entrypoint.sh" ]
+CMD [ "/opt/bitnami/scripts/grafana/run.sh" ]

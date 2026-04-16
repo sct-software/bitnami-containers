@@ -3,6 +3,6 @@
 
 services:
   nginx:
-    image: docker.io/bitnami/nginx:1.29
+    image: docker.io/bitnami/nginx:1.30
     ports:
       - '80:8080'
