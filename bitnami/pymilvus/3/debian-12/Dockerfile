@@ -7,13 +7,13 @@ ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
 ARG TARGETARCH
 
 LABEL org.opencontainers.image.base.name="docker.io/bitnami/minideb:bookworm" \
-      org.opencontainers.image.created="2026-05-12T17:57:19Z" \
+      org.opencontainers.image.created="2026-05-12T16:09:21Z" \
       org.opencontainers.image.description="Application packaged by Broadcom, Inc." \
-      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/kubectl/README.md" \
-      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/kubectl" \
-      org.opencontainers.image.title="kubectl" \
+      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/pymilvus/README.md" \
+      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/pymilvus" \
+      org.opencontainers.image.title="pymilvus" \
       org.opencontainers.image.vendor="Broadcom, Inc." \
-      org.opencontainers.image.version="1.36.1"
+      org.opencontainers.image.version="3.0.0"
 
 ENV HOME="/" \
     OS_ARCH="${TARGETARCH:-amd64}" \
@@ -23,13 +23,13 @@ ENV HOME="/" \
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN install_packages ca-certificates curl gettext git jq procps
+RUN install_packages ca-certificates curl libbz2-1.0 libcom-err2 libcrypt1 libffi8 libgcc-s1 libgssapi-krb5-2 libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 liblzma5 libncursesw6 libnsl2 libreadline8 libsqlite3-0 libssl3 libstdc++6 libtinfo6 libtirpc3 procps zlib1g
 RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     DOWNLOADS_URL=${SECRET_DOWNLOADS_URL:-${DOWNLOADS_URL}} ; \
     mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
-      "yq-4.53.2-1-linux-${OS_ARCH}-debian-12" \
-      "kubectl-1.36.1-0-linux-${OS_ARCH}-debian-12" \
+      "python-3.12.13-9-linux-${OS_ARCH}-debian-12" \
+      "pymilvus-3.0.0-0-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -42,16 +42,17 @@ RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     done
 RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
-RUN chmod g+rwX /opt/bitnami
-RUN mkdir /.kube && chmod g+rwX /.kube
+RUN useradd -r -u 1001 -g root pymilvus
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
+RUN mkdir /.local && chmod g+rwX /.local
 RUN uninstall_packages curl
 
-ENV APP_VERSION="1.36.1" \
-    BITNAMI_APP_NAME="kubectl" \
+RUN mkdir /app && chmod g+rwX /app
+ENV APP_VERSION="3.0.0" \
+    BITNAMI_APP_NAME="pymilvus" \
     IMAGE_REVISION="0" \
-    PATH="/opt/bitnami/common/bin:/opt/bitnami/kubectl/bin:$PATH"
+    PATH="/opt/bitnami/python/bin:$PATH"
 
+WORKDIR /app
 USER 1001
-ENTRYPOINT [ "kubectl" ]
-CMD [ "--help" ]
+ENTRYPOINT [ "python" ]

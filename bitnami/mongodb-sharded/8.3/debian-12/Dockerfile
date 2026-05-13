@@ -7,13 +7,13 @@ ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
 ARG TARGETARCH
 
 LABEL org.opencontainers.image.base.name="docker.io/bitnami/minideb:bookworm" \
-      org.opencontainers.image.created="2026-05-12T17:57:19Z" \
+      org.opencontainers.image.created="2026-05-12T16:08:49Z" \
       org.opencontainers.image.description="Application packaged by Broadcom, Inc." \
-      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/kubectl/README.md" \
-      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/kubectl" \
-      org.opencontainers.image.title="kubectl" \
+      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/mongodb-sharded/README.md" \
+      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/mongodb-sharded" \
+      org.opencontainers.image.title="mongodb-sharded" \
       org.opencontainers.image.vendor="Broadcom, Inc." \
-      org.opencontainers.image.version="1.36.1"
+      org.opencontainers.image.version="8.3.1"
 
 ENV HOME="/" \
     OS_ARCH="${TARGETARCH:-amd64}" \
@@ -23,13 +23,16 @@ ENV HOME="/" \
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN install_packages ca-certificates curl gettext git jq procps
+RUN install_packages ca-certificates curl libbrotli1 libcom-err2 libcurl4 libffi8 libgcc-s1 libgmp10 libgnutls30 libgssapi-krb5-2 libhogweed6 libidn2-0 libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 libldap-2.5-0 libnettle8 libnghttp2-14 libp11-kit0 libpsl5 librtmp1 libsasl2-2 libssh2-1 libssl3 libtasn1-6 libunistring2 libzstd1 numactl procps zlib1g
 RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     DOWNLOADS_URL=${SECRET_DOWNLOADS_URL:-${DOWNLOADS_URL}} ; \
     mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
       "yq-4.53.2-1-linux-${OS_ARCH}-debian-12" \
-      "kubectl-1.36.1-0-linux-${OS_ARCH}-debian-12" \
+      "wait-for-port-1.0.10-10-linux-${OS_ARCH}-debian-12" \
+      "render-template-1.0.9-165-linux-${OS_ARCH}-debian-12" \
+      "mongodb-shell-2.8.3-0-linux-${OS_ARCH}-debian-12" \
+      "mongodb-8.3.1-0-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -43,15 +46,20 @@ RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
 RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 RUN chmod g+rwX /opt/bitnami
-RUN mkdir /.kube && chmod g+rwX /.kube
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
-RUN uninstall_packages curl
+RUN ln -s /opt/bitnami/scripts/mongodb-sharded/entrypoint.sh /entrypoint.sh
+RUN ln -s /opt/bitnami/scripts/liblog.sh /liblog.sh
+RUN ln -s /opt/bitnami/scripts/mongodb-sharded/run.sh /run.sh
 
-ENV APP_VERSION="1.36.1" \
-    BITNAMI_APP_NAME="kubectl" \
+COPY rootfs /
+RUN /opt/bitnami/scripts/mongodb-sharded/postunpack.sh
+ENV APP_VERSION="8.3.1" \
+    BITNAMI_APP_NAME="mongodb-sharded" \
     IMAGE_REVISION="0" \
-    PATH="/opt/bitnami/common/bin:/opt/bitnami/kubectl/bin:$PATH"
+    PATH="/opt/bitnami/common/bin:/opt/bitnami/mongodb/bin:$PATH"
+
+EXPOSE 27017
 
 USER 1001
-ENTRYPOINT [ "kubectl" ]
-CMD [ "--help" ]
+ENTRYPOINT [ "/opt/bitnami/scripts/mongodb-sharded/entrypoint.sh" ]
+CMD [ "/opt/bitnami/scripts/mongodb-sharded/run.sh" ]
