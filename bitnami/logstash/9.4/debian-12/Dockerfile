@@ -4,16 +4,18 @@
 FROM docker.io/bitnami/minideb:bookworm
 
 ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
+ARG JAVA_EXTRA_SECURITY_DIR="/bitnami/java/extra-security"
+ARG LOGSTASH_PLUGINS
 ARG TARGETARCH
 
 LABEL org.opencontainers.image.base.name="docker.io/bitnami/minideb:bookworm" \
-      org.opencontainers.image.created="2026-05-07T21:08:54Z" \
+      org.opencontainers.image.created="2026-05-13T07:57:17Z" \
       org.opencontainers.image.description="Application packaged by Broadcom, Inc." \
-      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/grafana-k6/README.md" \
-      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/grafana-k6" \
-      org.opencontainers.image.title="grafana-k6" \
+      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/logstash/README.md" \
+      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/logstash" \
+      org.opencontainers.image.title="logstash" \
       org.opencontainers.image.vendor="Broadcom, Inc." \
-      org.opencontainers.image.version="1.7.1"
+      org.opencontainers.image.version="9.4.1"
 
 ENV HOME="/" \
     OS_ARCH="${TARGETARCH:-amd64}" \
@@ -23,13 +25,14 @@ ENV HOME="/" \
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN install_packages ca-certificates curl procps
+RUN install_packages ca-certificates curl procps zlib1g
 RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     DOWNLOADS_URL=${SECRET_DOWNLOADS_URL:-${DOWNLOADS_URL}} ; \
     mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
-      "grafana-k6-1.7.1-1-linux-${OS_ARCH}-debian-12" \
-      "scuttle-1.1.15-1-linux-${OS_ARCH}-debian-12" \
+      "yq-4.53.2-1-linux-${OS_ARCH}-debian-12" \
+      "java-21.0.11-11-2-linux-${OS_ARCH}-debian-12" \
+      "logstash-9.4.1-0-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -42,14 +45,22 @@ RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     done
 RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
-RUN useradd -r -u 1001 -g root grafana-k6
+RUN chmod g+rwX /opt/bitnami
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
 RUN uninstall_packages curl
 
-ENV APP_VERSION="1.7.1" \
-    BITNAMI_APP_NAME="grafana-k6" \
-    IMAGE_REVISION="1" \
-    PATH="/opt/bitnami/grafana-k6/bin:/opt/bitnami/common/bin:$PATH"
+COPY rootfs /
+RUN /opt/bitnami/scripts/java/postunpack.sh
+RUN /opt/bitnami/scripts/logstash/postunpack.sh
+ENV APP_VERSION="9.4.1" \
+    BITNAMI_APP_NAME="logstash" \
+    IMAGE_REVISION="0" \
+    JAVA_HOME="/opt/bitnami/java" \
+    PATH="/opt/bitnami/common/bin:/opt/bitnami/java/bin:/opt/bitnami/logstash/bin:$PATH"
 
+EXPOSE 8080
+
+WORKDIR /opt/bitnami/logstash
 USER 1001
-ENTRYPOINT [ "/opt/bitnami/grafana-k6/bin/k6" ]
+ENTRYPOINT [ "/opt/bitnami/scripts/logstash/entrypoint.sh" ]
+CMD [ "/opt/bitnami/scripts/logstash/run.sh" ]
