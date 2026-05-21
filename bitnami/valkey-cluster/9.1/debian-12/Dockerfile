@@ -7,29 +7,29 @@ ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
 ARG TARGETARCH
 
 LABEL org.opencontainers.image.base.name="docker.io/bitnami/minideb:bookworm" \
-      org.opencontainers.image.created="2026-05-17T11:55:46Z" \
+      org.opencontainers.image.created="2026-05-20T12:03:48Z" \
       org.opencontainers.image.description="Application packaged by Broadcom, Inc." \
-      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/valkey-sentinel/README.md" \
-      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/valkey-sentinel" \
-      org.opencontainers.image.title="valkey-sentinel" \
+      org.opencontainers.image.documentation="https://github.com/bitnami/containers/tree/main/bitnami/valkey-cluster/README.md" \
+      org.opencontainers.image.source="https://github.com/bitnami/containers/tree/main/bitnami/valkey-cluster" \
+      org.opencontainers.image.title="valkey-cluster" \
       org.opencontainers.image.vendor="Broadcom, Inc." \
-      org.opencontainers.image.version="9.0.4"
+      org.opencontainers.image.version="9.1.0"
 
 ENV HOME="/" \
     OS_ARCH="${TARGETARCH:-amd64}" \
     OS_FLAVOUR="debian-12" \
-    OS_NAME="linux" \
-    PATH="/opt/bitnami/valkey-sentinel/bin:$PATH"
+    OS_NAME="linux"
 
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN install_packages ca-certificates curl libssl3 procps
+RUN install_packages ca-certificates curl libgcc-s1 libgomp1 libssl3 libstdc++6 procps
 RUN --mount=type=secret,id=downloads_url,env=SECRET_DOWNLOADS_URL \
     DOWNLOADS_URL=${SECRET_DOWNLOADS_URL:-${DOWNLOADS_URL}} ; \
     mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
-      "valkey-sentinel-9.0.4-0-linux-${OS_ARCH}-debian-12" \
+      "wait-for-port-1.0.10-10-linux-${OS_ARCH}-debian-12" \
+      "valkey-9.1.0-0-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -47,13 +47,14 @@ RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
 RUN uninstall_packages curl
 
 COPY rootfs /
-RUN /opt/bitnami/scripts/valkey-sentinel/postunpack.sh
-ENV APP_VERSION="9.0.4" \
-    BITNAMI_APP_NAME="valkey-sentinel" \
-    IMAGE_REVISION="1"
+RUN /opt/bitnami/scripts/valkey-cluster/postunpack.sh
+ENV APP_VERSION="9.1.0" \
+    BITNAMI_APP_NAME="valkey-cluster" \
+    IMAGE_REVISION="0" \
+    PATH="/opt/bitnami/common/bin:/opt/bitnami/valkey/bin:$PATH"
 
-EXPOSE 26379
+EXPOSE 6379
 
 USER 1001
-ENTRYPOINT [ "/opt/bitnami/scripts/valkey-sentinel/entrypoint.sh" ]
-CMD [ "/opt/bitnami/scripts/valkey-sentinel/run.sh" ]
+ENTRYPOINT [ "/opt/bitnami/scripts/valkey-cluster/entrypoint.sh" ]
+CMD [ "/opt/bitnami/scripts/valkey-cluster/run.sh" ]
