@@ -101,7 +101,7 @@ grafana_initialize() {
 
     if am_i_root; then
         for dir in "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS"; do
-            is_mounted_dir_empty "$dir" && configure_permissions_ownership "$dir" -d "775" -f "664" -u "$GRAFANA_DAEMON_USER"
+            is_mounted_dir_empty "$dir" && configure_permissions_ownership "$dir" -d "775" -f "664" -u "$GRAFANA_DAEMON_USER" -n
         done
     fi
 
@@ -293,7 +293,6 @@ grafana_conf_set() {
     local -r section="${1:?missing key}"
     local -r key="${2:?missing key}"
     local -r value="${3:-}"
-    debug "Setting configuration ${section}.${key} with value '${value}' to configuration file"
     ini-file set --section "$section" --key "$key" --value "$value" "$(grafana_env_var_value PATHS_CONFIG)"
 }
 

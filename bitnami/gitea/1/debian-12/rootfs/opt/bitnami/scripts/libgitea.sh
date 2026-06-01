@@ -58,6 +58,9 @@ gitea_validate() {
         fi
     }
 
+    # Validate credentials
+    check_empty_value "GITEA_ADMIN_PASSWORD"
+
     ! is_empty_value "$GITEA_HTTP_PORT" && check_valid_port "GITEA_HTTP_PORT"
     ! is_empty_value "$GITEA_SSH_PORT" && check_valid_port "GITEA_SSH_PORT"
     ! is_empty_value "$GITEA_SSH_LISTEN_PORT" && check_valid_port "GITEA_SSH_LISTEN_PORT"
@@ -148,7 +151,7 @@ gitea_initialize() {
         for dir in "${dirs[@]}"; do
             if ! is_empty_value "$dir"; then
                 ensure_dir_exists "$dir"
-                am_i_root && configure_permissions_ownership "$dir" -d "775" -f "664" -u "$GITEA_DAEMON_USER" -g "root"
+                am_i_root && configure_permissions_ownership "$dir" -d "775" -f "664" -u "$GITEA_DAEMON_USER" -g "root" -n
             fi
         done
         gitea_update_conf_file
@@ -161,6 +164,7 @@ gitea_initialize() {
         is_empty_value "$GITEA_ENABLE_OPENID_SIGNIN" || gitea_conf_set "openid" "ENABLE_OPENID_SIGNIN" "$GITEA_ENABLE_OPENID_SIGNIN"
         is_empty_value "$GITEA_ENABLE_OPENID_SIGNUP" || gitea_conf_set "openid" "ENABLE_OPENID_SIGNUP" "$GITEA_ENABLE_OPENID_SIGNUP"
         info "Persisting Gitea installation"
+        chmod 600 "$GITEA_CONF_FILE"
         persist_app "$app_name" "$GITEA_DATA_TO_PERSIST"
     else
         info "Restoring persisted Gitea installation"
@@ -258,7 +262,6 @@ gitea_conf_set() {
     local -r value="${3:?value is required}"
     local -r file="${4:-${GITEA_CONF_FILE}}"
 
-    debug "Setting ${section:+"${section}."}${key} to '${value}' in Gitea configuration"
     ini-file set --section "$section" --key "$key" --value "$value" "$file"
 }
 

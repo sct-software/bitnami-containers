@@ -7,13 +7,13 @@
 # shellcheck disable=SC1091
 
 # Load Generic Libraries
+. /opt/bitnami/scripts/libfile.sh
 . /opt/bitnami/scripts/libfs.sh
 . /opt/bitnami/scripts/liblog.sh
 . /opt/bitnami/scripts/libos.sh
 . /opt/bitnami/scripts/libvalidations.sh
 . /opt/bitnami/scripts/libpersistence.sh
 . /opt/bitnami/scripts/libservice.sh
-. /opt/bitnami/scripts/libfile.sh
 
 ########################
 # Validate settings in EJBCA_* env. variables
@@ -389,6 +389,7 @@ ejbca_generate_ca() {
     ejbca_ca="$(ejbca_execute_command_print_output ca listcas 2>&1)"
     if ! grep -q 'CA Name: ' <<<"$ejbca_ca"; then
         info "Init CA"
+
         ejbca_execute_command ca init \
             --dn "CN=$EJBCA_CA_NAME,$EJBCA_BASE_DN" \
             --caname "$EJBCA_CA_NAME" \
@@ -401,6 +402,11 @@ ejbca_generate_ca() {
             -s "$EJBCA_CA_CERT_SIGNATURE_ALGORITHM" \
             -type "x509"
 
+        # Avoid passing EJBCA admin password as arguments to ejbca.sh, to avoid leaking them
+        # given a local observer with /proc read access can read them
+        local ejbca_admin_password_file
+        ejbca_admin_password_file="$(credential_to_temp_file "$EJBCA_ADMIN_PASSWORD")"
+
         info "Add superadmin user"
         ejbca_execute_command ra addendentity \
             --username "$EJBCA_ADMIN_USERNAME" \
@@ -408,7 +414,7 @@ ejbca_generate_ca() {
             --caname "$EJBCA_CA_NAME" \
             --type 1 \
             --token P12 \
-            --password "$EJBCA_ADMIN_PASSWORD"
+            --password "$(<"$ejbca_admin_password_file")"
     fi
 
     ejbca_ca="$(ejbca_execute_command_print_output ca listcas 2>&1)"
@@ -609,8 +615,8 @@ ejbca_initialize() {
     info "Initializing EJBCA..."
 
     # Configuring permissions for tmp, logs and data folders
-    am_i_root && configure_permissions_ownership "$EJBCA_TMP_DIR" -u "$EJBCA_DAEMON_USER" -g "$EJBCA_DAEMON_GROUP"
-    am_i_root && configure_permissions_ownership "$EJBCA_DATA_DIR" -u "$EJBCA_DAEMON_USER" -g "$EJBCA_DAEMON_GROUP"
+    am_i_root && configure_permissions_ownership "$EJBCA_TMP_DIR" -u "$EJBCA_DAEMON_USER" -g "$EJBCA_DAEMON_GROUP" -n
+    am_i_root && configure_permissions_ownership "$EJBCA_DATA_DIR" -u "$EJBCA_DAEMON_USER" -g "$EJBCA_DAEMON_GROUP" -n
 
     # Note we need to use wildfly instead of ejbca as directory since the persist_app function relativizes them to /opt/bitnami/wildfly
     if ! is_app_initialized "wildfly"; then
