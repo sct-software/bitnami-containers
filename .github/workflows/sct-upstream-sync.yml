@@ -1,9 +1,14 @@
 name: 'SCT Sync Upstream'
 
 on:
-  schedule:
-    # Run daily at 2 AM UTC
-    - cron: '0 2 * * *'
+  # Daily schedule paused (INF-139): Bitnami's "latest-only" policy prunes older
+  # versioned Dockerfiles upstream (e.g. redis-cluster), and an unattended daily
+  # sync silently merges those deletions into main and breaks our self-build CI.
+  # Run this manually (workflow_dispatch) and review the diff before merging,
+  # until we have migrated off Bitnami images. To re-enable, uncomment below.
+  # schedule:
+  #   # Run daily at 2 AM UTC
+  #   - cron: '0 2 * * *'
   workflow_dispatch:
     # Allow manual triggering
 
