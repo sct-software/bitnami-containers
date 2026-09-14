@@ -1,3 +1,6 @@
+> [!WARNING]  
+> This repository is non-functional and archived. After Bitnami hid its source, counter to what it promised us, we were forced to move away from Bitnami entirely.
+
 # SCT Software Fork of the Bitnami Containers Library
 
 SCT's fork of popular applications, provided by [Bitnami](https://bitnami.com), containerized and ready to launch.
